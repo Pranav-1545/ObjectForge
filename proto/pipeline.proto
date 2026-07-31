@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package reconstruction;
+
+service ReconstructionService {
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+  rpc ProcessFrame (FrameRequest) returns (FrameResponse);
+}
+
+message HealthCheckRequest {
+  string client_id = 1;
+}
+
+message HealthCheckResponse {
+  bool is_ready = 1;
+  bool cuda_available = 2;
+  string gpu_name = 3;
+}
+
+message FrameRequest {
+  int32 width = 1;
+  int32 height = 2;
+  bytes image_data = 3;
+}
+
+message FrameResponse {
+  bool success = 1;
+  int32 detected_objects_count = 2;
+}

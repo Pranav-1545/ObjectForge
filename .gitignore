@@ -1,0 +1,17 @@
+# Build outputs
+build/
+bin/
+lib/
+*.exe
+*.dll
+
+# Dependencies & toolchains
+vcpkg/
+vcpkg_installed/
+.venv/
+
+# IDE / OS specific
+.vs/
+.vscode/
+*.user
+*.suo
