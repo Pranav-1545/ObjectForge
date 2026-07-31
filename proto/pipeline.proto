@@ -1,29 +1,55 @@
 syntax = "proto3";
 
-package reconstruction;
+package objectforge;
 
-service ReconstructionService {
-  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+// Service running on the Python AI Engine
+service ObjectForgePipeline {
+  // Bi-directional or unary stream for camera frame processing
   rpc ProcessFrame (FrameRequest) returns (FrameResponse);
+  
+  // Stream service state / pipeline notifications to the UI
+  rpc GetPipelineStatus (StatusRequest) returns (stream StatusUpdate);
 }
 
-message HealthCheckRequest {
-  string client_id = 1;
-}
-
-message HealthCheckResponse {
-  bool is_ready = 1;
-  bool cuda_available = 2;
-  string gpu_name = 3;
-}
-
+// Input image frame sent from C++ UI to Python AI
 message FrameRequest {
   int32 width = 1;
   int32 height = 2;
-  bytes image_data = 3;
+  int32 channels = 3;
+  bytes image_data = 4; // Raw BGR/RGB byte buffer
+  int64 timestamp_ms = 5;
 }
 
+// Bounding box for detected tabletop objects
+message BoundingBox {
+  int32 x = 1;      // Top-left X
+  int32 y = 2;      // Top-left Y
+  int32 width = 3;  // Box width
+  int32 height = 4; // Box height
+  string label = 5; // e.g., "cup", "shoe", "bottle"
+  float confidence = 6;
+}
+
+// Output processed frame metadata returned to C++ UI
 message FrameResponse {
-  bool success = 1;
-  int32 detected_objects_count = 2;
+  int64 timestamp_ms = 1;
+  repeated BoundingBox detected_objects = 2;
+  bool target_locked = 3;
+}
+
+message StatusRequest {
+  string client_id = 1;
+}
+
+message StatusUpdate {
+  enum State {
+    DISCONNECTED = 0;
+    IDLE = 1;
+    SCANNING = 2;
+    PROCESSING_3D = 3;
+    ERROR = 4;
+  }
+  State state = 1;
+  string message = 2;
+  float progress_percentage = 3;
 }
