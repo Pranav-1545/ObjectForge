@@ -36,7 +36,7 @@ Unlike traditional heavy photogrammetry software, ObjectForge hides complex comp
   - Set up CMake target structure and dependencies (`qtbase`, `opencv4`, `grpc`, `protobuf`).
 - [x] **Phase 03: Base Native Desktop Shell**
   - Built dark-themed Qt6 application frame with video preview placeholder and status monitoring.
-- [ ] **Phase 04: Local gRPC Communication Bridge**
+- [x] **Phase 04: Local gRPC Communication Bridge**
   - Streaming camera feeds and detection bounding boxes between Qt UI and Python AI engine.
 - [ ] **Phase 05: Guided Object Selection Pipeline**
   - Double-tap selection, green object overlay highlight, and user confirmation modal.
