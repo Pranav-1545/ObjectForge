@@ -15,3 +15,10 @@ vcpkg_installed/
 .vscode/
 *.user
 *.suo
+build/
+service/venv/
+
+__pycache__/
+*.pt
+venv/
+build/

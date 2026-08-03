@@ -4,6 +4,11 @@ project(ObjectForge LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Enable Qt MOC globally
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
 # Find Required Packages via vcpkg
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
 find_package(OpenCV REQUIRED)

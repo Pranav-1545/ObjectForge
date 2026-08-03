@@ -8,15 +8,19 @@
 #include <QStyle>
 #include <QThread>
 #include <QPixmap>
+#include <QImage>
+#include <QMessageBox>
+#include <atomic>
 
 #include "GrpcClient.h"
 #include "CameraWorker.h"
+#include "ClickableLabel.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     QMainWindow mainWindow;
-    mainWindow.setWindowTitle("ObjectForge - 3D AI Reconstruction Studio");
+    mainWindow.setWindowTitle("ObjectForge - Reconstruction Studio");
     mainWindow.resize(1280, 720);
 
     app.setStyle("Fusion");
@@ -37,16 +41,17 @@ int main(int argc, char *argv[]) {
 
     QPushButton *connectBtn = new QPushButton("Connect AI Backend");
     QPushButton *startCamBtn = new QPushButton("Start Camera Feed");
+    QPushButton *unlockBtn = new QPushButton("Unlock Target");
+    unlockBtn->setEnabled(false);
 
     sidebarLayout->addWidget(titleLabel);
     sidebarLayout->addWidget(connectBtn);
     sidebarLayout->addWidget(startCamBtn);
+    sidebarLayout->addWidget(unlockBtn);
     sidebarLayout->addStretch();
 
-    // Video Viewport
-    QLabel *viewportLabel = new QLabel("Camera Viewport Placeholder");
-    viewportLabel->setAlignment(Qt::AlignCenter);
-    viewportLabel->setStyleSheet("background-color: #1e1e1e; color: #888888; border-radius: 6px;");
+    // Custom Hover/Key-Responsive Viewport
+    ClickableLabel *viewportLabel = new ClickableLabel();
 
     mainLayout->addWidget(sidebar);
     mainLayout->addWidget(viewportLabel, 1);
@@ -54,7 +59,7 @@ int main(int argc, char *argv[]) {
     mainWindow.setCentralWidget(centralWidget);
 
     QStatusBar *statusBar = mainWindow.statusBar();
-    statusBar->showMessage("ObjectForge Shell Initialized | Backend: Disconnected");
+    statusBar->showMessage("ObjectForge Shell Initialized | Hover over target ROI & press ENTER to lock.");
 
     // Initialize Services
     GrpcClient grpcClient;
@@ -64,6 +69,12 @@ int main(int argc, char *argv[]) {
     cameraWorker->moveToThread(cameraThread);
 
     bool cameraRunning = false;
+
+    // Shared State
+    static std::atomic<bool> isProcessingFrame{false};
+    static std::vector<DetectedObject> lastDetections;
+    static bool isLocked = false;
+    static cv::Rect lockedRect;
 
     // Signal / Slot Connections
     QObject::connect(&grpcClient, &GrpcClient::connectionStatusChanged, [&](bool connected, const QString& message) {
@@ -85,7 +96,8 @@ int main(int argc, char *argv[]) {
             QMetaObject::invokeMethod(cameraWorker, "startCamera", Q_ARG(int, 0));
             startCamBtn->setText("Stop Camera Feed");
             cameraRunning = true;
-            statusBar->showMessage("Camera Feed Started");
+            viewportLabel->setFocus();
+            statusBar->showMessage("Camera Feed Started | Hover target and press ENTER to lock.");
         } else {
             QMetaObject::invokeMethod(cameraWorker, "stopCamera");
             cameraThread->quit();
@@ -93,24 +105,84 @@ int main(int argc, char *argv[]) {
             startCamBtn->setText("Start Camera Feed");
             viewportLabel->setText("Camera Viewport Placeholder");
             cameraRunning = false;
+            isLocked = false;
+            unlockBtn->setEnabled(false);
             statusBar->showMessage("Camera Feed Stopped");
         }
     });
 
-    QObject::connect(cameraWorker, &CameraWorker::frameReady, [&](const QImage &img, const cv::Mat &/*raw*/) {
-        QPixmap pix = QPixmap::fromImage(img).scaled(viewportLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        viewportLabel->setPixmap(pix);
+    // Manual Unlock Button Handler
+    QObject::connect(unlockBtn, &QPushButton::clicked, [&]() {
+        isLocked = false;
+        unlockBtn->setEnabled(false);
+        viewportLabel->setFocus();
+        statusBar->showMessage("Target Unlocked. Hover over an object and press ENTER.");
     });
 
-    QObject::connect(cameraWorker, &CameraWorker::cameraError, [&](const QString &err) {
-        statusBar->showMessage("Camera Error: " + err);
+    // Target Locking Handler (Triggered on ENTER keypress when hovering)
+    QObject::connect(viewportLabel, &ClickableLabel::targetValidated, [&](const cv::Rect& finalRect) {
+        if (isLocked) return;
+
+        isLocked = true;
+        lockedRect = finalRect;
+        unlockBtn->setEnabled(true);
+
+        statusBar->showMessage(QString("TARGET LOCKED [%1, %2] | Size: %3x%4")
+                                .arg(lockedRect.x).arg(lockedRect.y)
+                                .arg(lockedRect.width).arg(lockedRect.height));
+        
+        QMessageBox::information(&mainWindow, "Target Locked", 
+            QString("Successfully locked target object ROI!\n\nPosition: (%1, %2)\nSize: %3x%4\n\nPress 'Unlock Target' to re-select.")
+            .arg(lockedRect.x).arg(lockedRect.y).arg(lockedRect.width).arg(lockedRect.height));
+    });
+
+    // Frame Handler: Query gRPC & Pass candidates to Viewport Label
+    QObject::connect(cameraWorker, &CameraWorker::frameReady, [&](const QImage &img, const cv::Mat &rawFrame) {
+        cv::Mat displayFrame = rawFrame.clone();
+
+        if (!isLocked) {
+            // Send frame to backend asynchronously
+            if (!isProcessingFrame.load()) {
+                isProcessingFrame.store(true);
+
+                std::vector<uchar> jpegBuffer;
+                cv::imencode(".jpg", rawFrame, jpegBuffer);
+
+                lastDetections = grpcClient.processFrame(jpegBuffer, rawFrame.cols, rawFrame.rows);
+                isProcessingFrame.store(false);
+            }
+
+            // Convert detections to candidate rectangles for hover tracking
+            std::vector<cv::Rect> candidateRects;
+            for (const auto& det : lastDetections) {
+                candidateRects.emplace_back(det.x, det.y, det.width, det.height);
+            }
+            viewportLabel->updateCandidates(candidateRects);
+
+        } else {
+            // Locked State: Viewport renders bright cyan crosshairs on locked target
+            cv::rectangle(displayFrame, lockedRect, cv::Scalar(255, 255, 0), 3); // Cyan box
+
+            cv::Point center(lockedRect.x + lockedRect.width / 2, lockedRect.y + lockedRect.height / 2);
+            cv::drawMarker(displayFrame, center, cv::Scalar(255, 255, 0), cv::MARKER_CROSS, 24, 2);
+
+            cv::putText(displayFrame, "TARGET LOCKED", cv::Point(lockedRect.x, std::max(20, lockedRect.y - 10)),
+                        cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 255, 0), 2);
+        }
+
+        // Convert BGR to RGB and render in Qt Viewport
+        cv::cvtColor(displayFrame, displayFrame, cv::COLOR_BGR2RGB);
+        QImage qDisplayImg(displayFrame.data, displayFrame.cols, displayFrame.rows, 
+                           static_cast<int>(displayFrame.step), QImage::Format_RGB888);
+
+        QPixmap pix = QPixmap::fromImage(qDisplayImg).scaled(viewportLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        viewportLabel->setPixmap(pix);
     });
 
     mainWindow.show();
 
     int execResult = app.exec();
 
-    // Clean up camera thread on exit
     if (cameraRunning) {
         QMetaObject::invokeMethod(cameraWorker, "stopCamera");
         cameraThread->quit();

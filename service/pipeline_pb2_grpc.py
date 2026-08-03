@@ -26,8 +26,7 @@ if _version_not_supported:
 
 
 class ObjectForgePipelineStub:
-    """Service running on the Python AI Engine
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -35,32 +34,29 @@ class ObjectForgePipelineStub:
         Args:
             channel: A grpc.Channel.
         """
-        self.ProcessFrame = channel.unary_unary(
-                '/objectforge.ObjectForgePipeline/ProcessFrame',
-                request_serializer=pipeline__pb2.FrameRequest.SerializeToString,
-                response_deserializer=pipeline__pb2.FrameResponse.FromString,
-                _registered_method=True)
         self.GetPipelineStatus = channel.unary_stream(
                 '/objectforge.ObjectForgePipeline/GetPipelineStatus',
                 request_serializer=pipeline__pb2.StatusRequest.SerializeToString,
                 response_deserializer=pipeline__pb2.StatusUpdate.FromString,
                 _registered_method=True)
+        self.ProcessFrame = channel.unary_unary(
+                '/objectforge.ObjectForgePipeline/ProcessFrame',
+                request_serializer=pipeline__pb2.FrameRequest.SerializeToString,
+                response_deserializer=pipeline__pb2.FrameResponse.FromString,
+                _registered_method=True)
 
 
 class ObjectForgePipelineServicer:
-    """Service running on the Python AI Engine
-    """
+    """Missing associated documentation comment in .proto file."""
 
-    def ProcessFrame(self, request, context):
-        """Bi-directional or unary stream for camera frame processing
-        """
+    def GetPipelineStatus(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetPipelineStatus(self, request, context):
-        """Stream service state / pipeline notifications to the UI
-        """
+    def ProcessFrame(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -68,15 +64,15 @@ class ObjectForgePipelineServicer:
 
 def add_ObjectForgePipelineServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ProcessFrame': grpc.unary_unary_rpc_method_handler(
-                    servicer.ProcessFrame,
-                    request_deserializer=pipeline__pb2.FrameRequest.FromString,
-                    response_serializer=pipeline__pb2.FrameResponse.SerializeToString,
-            ),
             'GetPipelineStatus': grpc.unary_stream_rpc_method_handler(
                     servicer.GetPipelineStatus,
                     request_deserializer=pipeline__pb2.StatusRequest.FromString,
                     response_serializer=pipeline__pb2.StatusUpdate.SerializeToString,
+            ),
+            'ProcessFrame': grpc.unary_unary_rpc_method_handler(
+                    servicer.ProcessFrame,
+                    request_deserializer=pipeline__pb2.FrameRequest.FromString,
+                    response_serializer=pipeline__pb2.FrameResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -87,35 +83,7 @@ def add_ObjectForgePipelineServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class ObjectForgePipeline:
-    """Service running on the Python AI Engine
-    """
-
-    @staticmethod
-    def ProcessFrame(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/objectforge.ObjectForgePipeline/ProcessFrame',
-            pipeline__pb2.FrameRequest.SerializeToString,
-            pipeline__pb2.FrameResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def GetPipelineStatus(request,
@@ -134,6 +102,33 @@ class ObjectForgePipeline:
             '/objectforge.ObjectForgePipeline/GetPipelineStatus',
             pipeline__pb2.StatusRequest.SerializeToString,
             pipeline__pb2.StatusUpdate.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ProcessFrame(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/objectforge.ObjectForgePipeline/ProcessFrame',
+            pipeline__pb2.FrameRequest.SerializeToString,
+            pipeline__pb2.FrameResponse.FromString,
             options,
             channel_credentials,
             insecure,

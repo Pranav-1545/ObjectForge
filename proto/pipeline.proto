@@ -2,39 +2,9 @@ syntax = "proto3";
 
 package objectforge;
 
-// Service running on the Python AI Engine
 service ObjectForgePipeline {
-  // Bi-directional or unary stream for camera frame processing
-  rpc ProcessFrame (FrameRequest) returns (FrameResponse);
-  
-  // Stream service state / pipeline notifications to the UI
   rpc GetPipelineStatus (StatusRequest) returns (stream StatusUpdate);
-}
-
-// Input image frame sent from C++ UI to Python AI
-message FrameRequest {
-  int32 width = 1;
-  int32 height = 2;
-  int32 channels = 3;
-  bytes image_data = 4; // Raw BGR/RGB byte buffer
-  int64 timestamp_ms = 5;
-}
-
-// Bounding box for detected tabletop objects
-message BoundingBox {
-  int32 x = 1;      // Top-left X
-  int32 y = 2;      // Top-left Y
-  int32 width = 3;  // Box width
-  int32 height = 4; // Box height
-  string label = 5; // e.g., "cup", "shoe", "bottle"
-  float confidence = 6;
-}
-
-// Output processed frame metadata returned to C++ UI
-message FrameResponse {
-  int64 timestamp_ms = 1;
-  repeated BoundingBox detected_objects = 2;
-  bool target_locked = 3;
+  rpc ProcessFrame (FrameRequest) returns (FrameResponse);
 }
 
 message StatusRequest {
@@ -43,13 +13,34 @@ message StatusRequest {
 
 message StatusUpdate {
   enum State {
-    DISCONNECTED = 0;
+    UNKNOWN = 0;
     IDLE = 1;
-    SCANNING = 2;
-    PROCESSING_3D = 3;
+    PROCESSING = 2;
+    COMPLETED = 3;
     ERROR = 4;
   }
   State state = 1;
   string message = 2;
   float progress_percentage = 3;
+}
+
+message FrameRequest {
+  int64 timestamp_ms = 1;
+  bytes image_data = 2; // Compressed JPEG/PNG bytes
+  int32 width = 3;
+  int32 height = 4;
+}
+
+message BoundingBox {
+  int32 x = 1;
+  int32 y = 2;
+  int32 width = 3;
+  int32 height = 4;
+  string label = 5;
+  float confidence = 6;
+}
+
+message FrameResponse {
+  int64 timestamp_ms = 1;
+  repeated BoundingBox detected_objects = 2;
 }

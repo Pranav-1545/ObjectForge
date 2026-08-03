@@ -22,7 +22,13 @@ void CameraWorker::startCamera(int deviceIndex) {
     running_ = true;
     captureLoop();
 }
-
+void drawDetections(cv::Mat &frame, const std::vector<cv::Rect> &boxes, const std::vector<std::string> &labels) {
+    for (size_t i = 0; i < boxes.size(); ++i) {
+        cv::rectangle(frame, boxes[i], cv::Scalar(0, 255, 0), 2);
+        cv::putText(frame, labels[i], cv::Point(boxes[i].x, boxes[i].y - 8),
+                    cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 255, 0), 2);
+    }
+}
 void CameraWorker::stopCamera() {
     running_ = false;
     if (cap_.isOpened()) {
