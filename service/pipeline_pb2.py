@@ -24,25 +24,27 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0epipeline.proto\x12\x0bobjectforge\"\"\n\rStatusRequest\x12\x11\n\tclient_id\x18\x01 \x01(\t\"\xb6\x01\n\x0cStatusUpdate\x12.\n\x05state\x18\x01 \x01(\x0e\x32\x1f.objectforge.StatusUpdate.State\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1b\n\x13progress_percentage\x18\x03 \x01(\x02\"H\n\x05State\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04IDLE\x10\x01\x12\x0e\n\nPROCESSING\x10\x02\x12\r\n\tCOMPLETED\x10\x03\x12\t\n\x05\x45RROR\x10\x04\"W\n\x0c\x46rameRequest\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x03\x12\x12\n\nimage_data\x18\x02 \x01(\x0c\x12\r\n\x05width\x18\x03 \x01(\x05\x12\x0e\n\x06height\x18\x04 \x01(\x05\"e\n\x0b\x42oundingBox\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\r\n\x05width\x18\x03 \x01(\x05\x12\x0e\n\x06height\x18\x04 \x01(\x05\x12\r\n\x05label\x18\x05 \x01(\t\x12\x12\n\nconfidence\x18\x06 \x01(\x02\"Y\n\rFrameResponse\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x03\x12\x32\n\x10\x64\x65tected_objects\x18\x02 \x03(\x0b\x32\x18.objectforge.BoundingBox2\xaa\x01\n\x13ObjectForgePipeline\x12L\n\x11GetPipelineStatus\x12\x1a.objectforge.StatusRequest\x1a\x19.objectforge.StatusUpdate0\x01\x12\x45\n\x0cProcessFrame\x12\x19.objectforge.FrameRequest\x1a\x1a.objectforge.FrameResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0epipeline.proto\x12\x0bobjectforge\"H\n\x11LockTargetRequest\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\r\n\x05width\x18\x03 \x01(\x05\x12\x0e\n\x06height\x18\x04 \x01(\x05\"8\n\x0c\x46rameRequest\x12\x12\n\nimage_data\x18\x01 \x01(\x0c\x12\x14\n\x0ctimestamp_ms\x18\x02 \x01(\x03\"h\n\x0e\x44\x65tectedObject\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\r\n\x05width\x18\x03 \x01(\x05\x12\x0e\n\x06height\x18\x04 \x01(\x05\x12\r\n\x05label\x18\x05 \x01(\t\x12\x12\n\nconfidence\x18\x06 \x01(\x02\"\\\n\rFrameResponse\x12\x14\n\x0ctimestamp_ms\x18\x01 \x01(\x03\x12\x35\n\x10\x64\x65tected_objects\x18\x02 \x03(\x0b\x32\x1b.objectforge.DetectedObject\"\x0f\n\rStatusRequest\"\x97\x01\n\x0cStatusUpdate\x12.\n\x05state\x18\x01 \x01(\x0e\x32\x1f.objectforge.StatusUpdate.State\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1b\n\x13progress_percentage\x18\x03 \x01(\x02\")\n\x05State\x12\x08\n\x04IDLE\x10\x00\x12\x0b\n\x07RUNNING\x10\x01\x12\t\n\x05\x45RROR\x10\x02\x32\xf3\x01\n\x13ObjectForgePipeline\x12\x45\n\x0cProcessFrame\x12\x19.objectforge.FrameRequest\x1a\x1a.objectforge.FrameResponse\x12G\n\nLockTarget\x12\x1e.objectforge.LockTargetRequest\x1a\x19.objectforge.StatusUpdate\x12L\n\x11GetPipelineStatus\x12\x1a.objectforge.StatusRequest\x1a\x19.objectforge.StatusUpdate0\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'pipeline_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_STATUSREQUEST']._serialized_start=31
-  _globals['_STATUSREQUEST']._serialized_end=65
-  _globals['_STATUSUPDATE']._serialized_start=68
-  _globals['_STATUSUPDATE']._serialized_end=250
-  _globals['_STATUSUPDATE_STATE']._serialized_start=178
-  _globals['_STATUSUPDATE_STATE']._serialized_end=250
-  _globals['_FRAMEREQUEST']._serialized_start=252
-  _globals['_FRAMEREQUEST']._serialized_end=339
-  _globals['_BOUNDINGBOX']._serialized_start=341
-  _globals['_BOUNDINGBOX']._serialized_end=442
-  _globals['_FRAMERESPONSE']._serialized_start=444
-  _globals['_FRAMERESPONSE']._serialized_end=533
-  _globals['_OBJECTFORGEPIPELINE']._serialized_start=536
-  _globals['_OBJECTFORGEPIPELINE']._serialized_end=706
+  _globals['_LOCKTARGETREQUEST']._serialized_start=31
+  _globals['_LOCKTARGETREQUEST']._serialized_end=103
+  _globals['_FRAMEREQUEST']._serialized_start=105
+  _globals['_FRAMEREQUEST']._serialized_end=161
+  _globals['_DETECTEDOBJECT']._serialized_start=163
+  _globals['_DETECTEDOBJECT']._serialized_end=267
+  _globals['_FRAMERESPONSE']._serialized_start=269
+  _globals['_FRAMERESPONSE']._serialized_end=361
+  _globals['_STATUSREQUEST']._serialized_start=363
+  _globals['_STATUSREQUEST']._serialized_end=378
+  _globals['_STATUSUPDATE']._serialized_start=381
+  _globals['_STATUSUPDATE']._serialized_end=532
+  _globals['_STATUSUPDATE_STATE']._serialized_start=491
+  _globals['_STATUSUPDATE_STATE']._serialized_end=532
+  _globals['_OBJECTFORGEPIPELINE']._serialized_start=535
+  _globals['_OBJECTFORGEPIPELINE']._serialized_end=778
 # @@protoc_insertion_point(module_scope)
